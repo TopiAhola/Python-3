@@ -92,7 +92,7 @@ while max(matka) <= 10000:
 
 #lopuksi tulostetaan tiedot
 
-lopputiedot = PrettyTable(["Auto", "Rekisteritunnus", "Huippunopeus (km/h)", "Nopeus (km/h)", "Matka (km/h)"])
+lopputiedot = PrettyTable(["Auto", "Rekisteritunnus", "Huippunopeus (km/h)", "Nopeus (km/h)", "Matka (km)"])
 for a in autot:
     a_tiedot = autot[a].tiedot()
     lopputiedot.add_row([a , a_tiedot[0], a_tiedot[1], a_tiedot[2], a_tiedot[3] ])
