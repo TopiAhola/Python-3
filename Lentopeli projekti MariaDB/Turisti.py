@@ -1,7 +1,91 @@
+def get_destinations(game_location):
+#Ottaa sijainnin ja antaa vaihtoehdot minne lentää.
+
+    # 3 lähintä kenttää. Tupleja (ident, distance)
+    nearby = get_nearby(game_location)
+    kentta1, kentta2, kentta3 = nearby
+
+    #identit kentille:
+    kentta1_ident = kentta1[0]
+    kentta2_ident = kentta2[0]
+    kentta3_ident = kentta3[0]
+    kentta4_ident = (get_jokeri(game_location, kentta1[0], kentta2[0], kentta3[0]))
+
+    return kentta1_ident, kentta2_ident, kentta3_ident, kentta4_ident
+
+
+def get_jokeri(game_location, nearest1, nearest2, nearest3):
+#Ottaa pelaajan sijainnin ja antaa sattumanvaraisen matkakohteen identin.
+# Argumentit on game_location ja 3 kenttää jotka get_destinations arpoo. Ei anna samaa kenttää uudestaan.
+    while True:
+        jokeri_ident = random_location()
+        if jokeri_ident != game_location and jokeri_ident != nearest1 and jokeri_ident != nearest2 and jokeri_ident != nearest3:
+            break
+
+    return jokeri_ident
 
 
 
-def distance( origin, destination ):
+def check_money(game_money, kentta1_dist, kentta2_dist, kentta3_dist, kentta4_dist):
+    # Tarkistaa onko pelaajalla rahaa lentää kentille halvimmalla lipulla.
+    # Tämä on yksinkertainen versio. Parempi antaa pelaajan statsit ja ei tee pyöristysvirheitä.
+    kentta1_cost = 0.1 * kentta1_dist
+    kentta2_cost = 0.1 * kentta2_dist
+    kentta3_cost = 0.1 * kentta3_dist
+    kentta4_cost = 0.1 * kentta4_dist
+    costs = [kentta1_cost, kentta2_cost, kentta3_cost, kentta4_cost]
+    min_cost = min(costs)
+
+
+    if game_money < min_cost:
+        print(f"\nRahasi ovat loppuneet ja olet hävinnyt pelin!\n")
+        exit()
+
+def get_name_country(ident):
+    #hakee kentän nimen identin perusteella. Tämä on vähän turha.
+
+    sql = f"SELECT name, country_fi FROM kentat WHERE ident = '{ident}'  "
+    kursori.execute(sql)
+    sql_read = kursori.fetchall()
+    for a in sql_read:
+        name = a[0]
+        country_fi = a[1]
+    return name, country_fi
+
+
+
+def get_nearby(game_location):
+# Ottaa pelaajan sijainnin ja palauttaa 3:n lähimmän kentän identin ja etäisyyden .
+
+    #Haetaan lista kaikista kentistä, all_kentat
+    sql = f"SELECT ident FROM kentat"
+    kursori.execute(sql)
+    sql_list = kursori.fetchall()
+    all_kentat = []
+    for rivi in sql_list:
+        all_kentat.append(rivi[0])
+
+    #Lasketaan etäisyys kaikille kentille, tehdään kentistä ja etäisyyksistä tupleja.
+    all_dist = []
+
+    for kentta in all_kentat:
+        if kentta != game_location:
+            #print(kentta, game_location)
+            kentta_dist = dist(kentta, game_location)
+            kentta_tuple = (kentta, kentta_dist)
+            all_dist.append(kentta_tuple)
+
+    # Järjestellään tuplet pienimmät ensin
+    all_dist = sorted(all_dist, key=lambda x: x[1])
+
+    #Lähimmät 3 kenttää tupleina
+    nearby = []
+    nearby = all_dist[:3]
+
+    return nearby
+
+
+def dist( origin, destination ):
 # Laskee kahden kentän välisen etäisyyden. Syöte on kenttien ident-koodi. Antaa tuloksen kilometreinä kokonaislukuna.
 
      #Haetaan koordinaatit
@@ -86,6 +170,24 @@ def new_game():
 
     return game_id
 
+def load_game():
+    #Näyttää edelliset pelit ja antaa pelaajan valita game_id numeron
+
+    sql = f"SELECT game.id, game.name, kentat.name, kentat.country_fi FROM game LEFT JOIN kentat ON kentat.ident = game.location"
+    kursori.execute(sql)
+    sql_list = kursori.fetchall()
+
+    print("\nTallennetut pelit:\nNumero, Nimi, Lentokenttä, Maa")
+    for game in sql_list:
+        print(f"{game[0]}, {game[1]}, {game[2]}, {game[3]}")
+
+    game_id = input("Anna haluamasi pelin numero: ")
+    if game_id == "":
+        game_id = new_game()
+
+
+    return game_id
+
 
 def goal_reached(game_id):
     #Hakee saavutettujen tavoitteiden totuusarvot tietokannasta.
@@ -105,7 +207,7 @@ def goal_reached(game_id):
     if 0 not in bool_values:
         goal_bool = True
 
-    print(bool_values)
+
     return goal_bool
 
 def game_values(game_id):
@@ -138,7 +240,17 @@ def show_goals(game_id):
     for tuple in goal_list:
         print(f"{tuple[0]}, {tuple[1]}")
 
-def show_locations(game_id):
+def show_location(game_id):
+    #Kertoo pelaajan sijainnin. Lentokenttä ja maa.
+
+    sql = f" SELECT kentat.name, kentat.country_fi FROM kentat RIGHT JOIN game ON game.location = kentat.ident WHERE game.id = '{game_id}'  "
+    kursori.execute(sql)
+    sql_list = kursori.fetchall()
+
+    location = ()
+    for tuple in sql_list:
+        location += tuple
+        print(f"\nSijaintisi on {location[0]}, {location[1]}")
 
 
 
@@ -172,21 +284,63 @@ game_values lista sisältää:
 Muut globaalit muuttujat:
 goal_list -lista tavoitekenttien ident-koodeista
 
+#game_name, game_location, game_money, game_co2, game_money_gained, game_money_spent, game_distance, game_flights, goal_list
 '''
+
+
 #Peli alkaa
 
+# Luodaan uusi peli tai ladataan vanha: tämä määrittää game_id:n
+game_type = input("Valitse 1 tai 2:\n1 Uusi peli\n2 Lataa peli")
+if game_type == "2":
+    game_id = load_game()
 
+else:
+    game_id = new_game()
 
-# Luodaan uusi peli:
-# Myöhemmin voidaan lisätä valitarakenne jolla voi ladata vanhan pelin, game_name, game_location, game_money, game_co2, game_money_gained, game_money_spent, game_distance, game_flights, goal_list = new_game()
-game_id = new_game()
+#Haetaan arvot tietokannasta game_id perusteella:
 game_id, game_name, game_location, game_money, game_co2, game_money_gained, game_money_spent, game_distance, game_flights = game_values(game_id)
 
+#Toistorakenne kunnes peli voitettu:
+while goal_reached(game_id) != True:
 
-show_goals(game_id)
 
-## Pelin toistorakenne:
 
-#while goal_reached(game_id) != True:
+
+    # Pelaajan nimi
+    print(f"\nPelaaja: {game_name}")
+
+    # Näytetään tavoitteet
+    show_goals(game_id)
+
+    #Näytetään pelaajan sijainti
+    show_location(game_id)
+
+    #Näytetään pelaajan raha ja päästöt
+    print(f"Sinulla on {game_money}€ rahaa. Hiilipäästösi ovat {game_co2}kg.")
+
+    #Haetaan lentoreitit pelaajan sijainnista. 4 kenttaa:
+    kentta1, kentta2, kentta3, kentta4 = get_destinations(game_location)
+
+    #Etäisyydet kentille
+    kentta1_dist = int(dist(game_location, kentta1))
+    kentta2_dist = int(dist(game_location, kentta2))
+    kentta3_dist = int(dist(game_location, kentta3))
+    kentta4_dist = int(dist(game_location, kentta4))
+
+    # Tarkistetaan onko pelaajalla rahaa lentää kohteisin:
+    check_money(game_money, kentta1_dist, kentta2_dist, kentta3_dist, kentta4_dist)
+
+    #Luodaan lennot joilla kohteisiin lennetään.
+    flight = get_flights(game_location, kentta1, kentta2, kentta3, kentta4)
+
+
+    #Lennetään! Flight sisältää (game_location, destination,
+    fly(flight)
+
+    #
+
+#show_flights
+
 
 
