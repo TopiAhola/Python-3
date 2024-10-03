@@ -1,3 +1,189 @@
+def end_game(game_id):
+#Pelaaja voittaa pelin. Tulostetaan lopputiedot.
+    game_id, game_name, game_location, game_money, game_co2, game_money_gained, game_money_spent, game_distance, game_flights = game_values(game_id)
+
+    print(f"Onnea {game_name}! Olet saavuttanut tavoitteesi.")
+    print(f"\nTavoitteesi olivat:")
+    goal_list = goal_reached(game_id)
+    for tuple in goal_list:
+        print(f"{tuple[0]}, {tuple[1]}")
+
+
+    print(f"")
+    print(f"Sinulle jäi {game_money}€ rahaa.")
+
+
+
+
+
+
+
+def get_money(game_id, game_location):
+# Antaa pelaajalle lisää rahaa. Voisi myös tulostaa jonkin selityksen mistä raha tulee.
+
+    #Haetaan pelaajan rahat
+    sql = f"SELECT money FROM game WHERE game.id = '{game_id}' "
+    kursori.execute(sql)
+    sql_money = kursori.fetchall()
+
+    #Haetaan maan GDP
+    sql = f"SELECT gdp FROM kentat WHERE kentat.ident = '{game_location}' "
+    kursori.execute(sql)
+    sql_gdp = kursori.fetchall()
+
+    #Rahaa saa 2*gdp. Arvon muuttaminen vaikuttaa vaikeusasteeseen.
+    gdp = sql_gdp[0][0]
+    gdp_bonus = int(3 * gdp)
+    money1 = sql_money[0][0]
+    money2 = int(money1 +gdp_bonus)
+    print(f"Ansaitset {gdp_bonus}€ lisää rahaa.")
+
+    sql2 = f"UPDATE game SET money = '{money2}' WHERE game.id = '{game_id}'"
+    kursori.execute(sql2)
+    yhteys.commit()
+
+
+
+def visit_destination(game_location, game_id):
+#Tarkistaa onko pelaaja käynyt kohteessa. Muokkaa tietokantaan käydyt kentät.
+
+    #Tarkistetaan onko kentta tavoite:
+    sql1 = f" SELECT * from goal WHERE game_id = '{game_id}'  "
+    kursori.execute(sql1)
+    goal_list = kursori.fetchall()
+    #print(goal_list)
+
+    #Käydään tuplet läpi ja jos löytyy tavoite jossa reached == 0 merkitään se saavutetuksi.
+    for tuple in goal_list:
+        #print(tuple[2])
+        if game_location in tuple and tuple[2] == 0:
+            print(f"\nOlet saavuttanut yhden tavoitteistasi!")
+            sql2 = f"UPDATE goal SET reached = '1' WHERE game_id = '{game_id}' and ident = '{game_location}'  "
+            kursori.execute(sql2)
+            yhteys.commit()
+
+    #Tarkistetaan onko kentällä käyty aikaisemmin
+
+    sql3 = f" SELECT ident FROM visited WHERE game_id = '{game_id}'  "
+    kursori.execute(sql3)
+    sql_list = kursori.fetchall()
+    visited_list = []
+    for tuple in sql_list:
+        #print(tuple[0])
+        visited_list.append(tuple[0])
+
+
+    if game_location not in visited_list:
+        print("Vierailet ensimmäistä kertaa tässä maassa.")
+        sql4 = f"INSERT INTO visited (game_id, ident) VALUES ('{game_id}', '{game_location}') "
+        kursori.execute(sql4)
+        yhteys.commit()
+        get_money(game_id, game_location)
+    else:
+        print("Olet käynyt tässä maassa aikaisemmin.")
+
+
+
+
+def update_game(game_id, game_name, game_location, game_money, game_co2, game_money_gained, game_money_spent, game_distance, game_flights):
+# Tallentaa muutoksia game-tauluun
+    sql = (f"UPDATE game "
+           f"SET game.location = '{game_location}', game.money = '{game_money}', game.co2 = '{game_co2}' , game.money_gained = '{game_money_gained}', game.money_spent = '{game_money_spent}', "
+           f"game.distance = '{game_distance}', game.flights = '{game_flights}' WHERE game.id = '{game_id}' ")
+
+    kursori.execute(sql)
+    yhteys.commit()
+
+
+
+def fly(selected_flight, game_id):
+# Ottaa lennon tiedot. Hakee pelin tiedot ja muokkaa niitä lennon mukaisesti.
+# selected_flight =(destination, name, country, distance, cost, co2)
+
+
+    game_id, game_name, game_location, game_money, game_co2, game_money_gained, game_money_spent, game_distance, game_flights = game_values(game_id)
+
+    game_location = selected_flight[0]
+    game_distance = game_distance + selected_flight[3]
+    game_money = game_money - selected_flight[4]
+    game_co2 = game_co2 + selected_flight[5]
+    game_money_spent = game_money_spent + selected_flight[4]
+    game_distance = game_distance + selected_flight[3]
+    game_flights = game_flights + 1
+
+    update_game(game_id, game_name, game_location, game_money, game_co2, game_money_gained, game_money_spent, game_distance, game_flights)
+
+
+def select_flight(flights):
+    print(f"\nTarjolla on seuraavat lennot: ")
+    n = 1
+    print("\nVähäpäästöiset lennot: ")
+    for tuple in flights[0:4]:
+        print(f"{n}: {tuple[1]}, {tuple[2]}, etäisyys {tuple[3]}km, hinta {tuple[4]}€, päästöt {tuple[5]}kg")
+        n = n + 1
+    print("\nKeskipäästöiset lennot: ")
+    for tuple in flights[4:8]:
+        print(f"{n}: {tuple[1]}, {tuple[2]}, etäisyys {tuple[3]}km, hinta {tuple[4]}€, päästöt {tuple[5]}kg")
+        n = n + 1
+    print("\nSuuripäästöiset lennot: ")
+    for tuple in flights[8:12]:
+        print(f"{n}: {tuple[1]}, {tuple[2]}, etäisyys {tuple[3]}km, hinta {tuple[4]}€, päästöt {tuple[5]}kg")
+        n = n + 1
+
+    selection = int(input("\nValitse lento 1-12:\n"))
+    selected_flight = flights[selection - 1]
+    return selected_flight
+
+
+def get_flights(game_location, kentta1, kentta2, kentta3, kentta4):
+    # Palauttaa 3 listaa tupleja lennoista jotka ovat tarjolla.
+    # tuple =(id, destination, distance, cost, co2)
+    # vähäpäästöinen luokka on flights[0]-[3]
+
+    flights = []
+
+    kentat = [kentta1, kentta2, kentta3, kentta4]
+
+
+    #Luokka 1, vähäpäästöinen
+
+    for dest in kentat:
+        dis = int(dist(game_location, dest))
+        co2 = int(0.1 * dist(game_location, dest))
+        cost = int(0.3 * dist(game_location, dest))
+        name, country = get_name_country(dest)
+        tuple = (dest, name, country, dis, cost, co2)
+        flights.append(tuple)
+
+
+    # Luokka 2, keskipäästöinen
+
+    for dest in kentat:
+        dis = int(dist(game_location, dest))
+        co2 = int(0.2 * dist(game_location, dest))
+        cost = int(0.2 * dist(game_location, dest))
+        name, country = get_name_country(dest)
+        tuple = (dest, name, country, dis, cost, co2)
+        flights.append(tuple)
+
+
+
+
+    # Luokka 3, suuripäästöinen
+
+    for dest in kentat:
+        dis = int(dist(game_location, dest))
+        co2 = int(0.3 * dist(game_location, dest))
+        cost = int(0.1 * dist(game_location, dest))
+        name, country = get_name_country(dest)
+        tuple = (dest, name, country, dis, cost, co2)
+        flights.append(tuple)
+
+
+    return flights
+
+
+
 def get_destinations(game_location):
 #Ottaa sijainnin ja antaa vaihtoehdot minne lentää.
 
@@ -128,7 +314,7 @@ def random_location():
 def new_game():
     # Luo pelaajan ja tavoitteet ja syöttää ne tietokantaan.
     # Palauttaa pelaajan game_id tietokannasta.
-    # Palauttaa tavoitteet listana goal_list
+
 
 
 
@@ -226,10 +412,25 @@ def game_values(game_id):
     #Palautetaan lista
     return values
 
+def goal_reached(game_id):
+
+    # Kertoo pelaajan saavutetut tavoitteet.
+
+    sql = f" SELECT kentat.name, kentat.country_fi FROM kentat RIGHT JOIN goal ON goal.ident = kentat.ident WHERE goal.game_id = '{game_id}' AND goal.reached = '1' "
+    kursori.execute(sql)
+    sql_list = kursori.fetchall()
+    goal_list = []
+    for tuple in sql_list:
+        goal_list.append(tuple)
+
+    return goal_list
+
+
+
 def show_goals(game_id):
     #Kertoo pelaajan tavoitteet ja missä on käynyt.
 
-    sql = f" SELECT kentat.name, kentat.country_fi FROM kentat RIGHT JOIN goal ON goal.ident = kentat.ident WHERE goal.game_id = '{game_id}'  "
+    sql = f" SELECT kentat.name, kentat.country_fi FROM kentat RIGHT JOIN goal ON goal.ident = kentat.ident WHERE goal.game_id = '{game_id}' AND goal.reached = '0' "
     kursori.execute(sql)
     sql_list = kursori.fetchall()
     goal_list = []
@@ -267,25 +468,11 @@ parametrit = {"host": 'localhost', 'database': 'flight_game', 'user': 'game', 'p
 yhteys = mysql.connector.connect(**parametrit)
 kursori = yhteys.cursor()
 
-'''
-# Muuttujat, haetaan tietokannasta
 
-game_values lista sisältää:
-[0] game_id 
-[1] game_name 
-[2] game_location
-[3] game_money
-[4] game_co2
-[5] game_money_gained
-[6] game_money_spent
-[7] game_distance
-[8] game_flights
 
-Muut globaalit muuttujat:
-goal_list -lista tavoitekenttien ident-koodeista
 
-#game_name, game_location, game_money, game_co2, game_money_gained, game_money_spent, game_distance, game_flights, goal_list
-'''
+#game_id, game_name, game_location, game_money, game_co2, game_money_gained, game_money_spent, game_distance, game_flights
+
 
 
 #Peli alkaa
@@ -298,17 +485,16 @@ if game_type == "2":
 else:
     game_id = new_game()
 
-#Haetaan arvot tietokannasta game_id perusteella:
+#Haetaan arvot tietokannasta game_id perusteella joka saadaan new_ tai load_game funktiosta:
 game_id, game_name, game_location, game_money, game_co2, game_money_gained, game_money_spent, game_distance, game_flights = game_values(game_id)
 
 #Toistorakenne kunnes peli voitettu:
 while goal_reached(game_id) != True:
 
-
-
+    game_id, game_name, game_location, game_money, game_co2, game_money_gained, game_money_spent, game_distance, game_flights = game_values(game_id)
 
     # Pelaajan nimi
-    print(f"\nPelaaja: {game_name}")
+    print(f"####################################################################################\nPelaaja: {game_name}")
 
     # Näytetään tavoitteet
     show_goals(game_id)
@@ -322,7 +508,7 @@ while goal_reached(game_id) != True:
     #Haetaan lentoreitit pelaajan sijainnista. 4 kenttaa:
     kentta1, kentta2, kentta3, kentta4 = get_destinations(game_location)
 
-    #Etäisyydet kentille
+    #Etäisyydet kentille. Tarvitaan hintalaskuriin.
     kentta1_dist = int(dist(game_location, kentta1))
     kentta2_dist = int(dist(game_location, kentta2))
     kentta3_dist = int(dist(game_location, kentta3))
@@ -332,15 +518,22 @@ while goal_reached(game_id) != True:
     check_money(game_money, kentta1_dist, kentta2_dist, kentta3_dist, kentta4_dist)
 
     #Luodaan lennot joilla kohteisiin lennetään.
-    flight = get_flights(game_location, kentta1, kentta2, kentta3, kentta4)
+    flights = get_flights(game_location, kentta1, kentta2, kentta3, kentta4)
+    #flights =(destination, name, country, distance, cost, co2)
+
+    #Valitaan lento 1-12:
+    selected_flight = select_flight(flights)
+
+    #Lennetään! Pelaajan tiedot muuttuvat
+    fly(selected_flight, game_id)
+
+    # Arvot muuttuneet joten pitää hakea uudestaan
+    game_id, game_name, game_location, game_money, game_co2, game_money_gained, game_money_spent, game_distance, game_flights = game_values(game_id)
+
+    #Saavutaan määränpäähän. Saadaan mahdollisesti rahaa.
+    visit_destination(game_location, game_id)
 
 
-    #Lennetään! Flight sisältää (game_location, destination,
-    fly(flight)
 
-    #
-
-#show_flights
-
-
-
+#Pelaaja voitta pelin!
+end_game(game_id)
