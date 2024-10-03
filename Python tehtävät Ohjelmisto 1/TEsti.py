@@ -1,3 +1,9 @@
-distance = 399.4567
 
-print(f" {distance:.1f} km" )
+a = (1,2,3,4,5 )
+sanakirja = {1 : a }
+
+s = sanakirja[1]
+print(s)
+
+for n in s:
+    print(n)

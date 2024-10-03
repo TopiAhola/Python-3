@@ -1,16 +1,19 @@
 def end_game(game_id):
 #Pelaaja voittaa pelin. Tulostetaan lopputiedot.
     game_id, game_name, game_location, game_money, game_co2, game_money_gained, game_money_spent, game_distance, game_flights = game_values(game_id)
+    co2_kg_km = game_co2 /game_distance
 
-    print(f"Onnea {game_name}! Olet saavuttanut tavoitteesi.")
+    print(f"\nOnnea {game_name}! Olet saavuttanut tavoitteesi.")
     print(f"\nTavoitteesi olivat:")
-    goal_list = goal_reached(game_id)
+    goal_list = goal_reach_list(game_id)
     for tuple in goal_list:
         print(f"{tuple[0]}, {tuple[1]}")
 
 
-    print(f"")
-    print(f"Sinulle jäi {game_money}€ rahaa.")
+    print(f"\nLensit {game_flights} kertaa lentokoneella. Matkustit yhteensä {game_distance:.0f}km. "
+          f"\nPäästösi yhteensä olivat {game_co2:.0f}kg. Päästösi kilometriä kohden olivat {co2_kg_km:.2f}kg/km."
+          f"  ")
+    print(f"Ansaitsit {game_money_gained:.0f}€. Kulutit {game_money_spent:.0f}€. Sinulle jäi {game_money:.0f}€ rahaa.")
 
 
 
@@ -367,7 +370,7 @@ def load_game():
     for game in sql_list:
         print(f"{game[0]}, {game[1]}, {game[2]}, {game[3]}")
 
-    game_id = input("Anna haluamasi pelin numero: ")
+    game_id = input("\nAnna haluamasi pelin numero: ")
     if game_id == "":
         game_id = new_game()
 
@@ -412,9 +415,9 @@ def game_values(game_id):
     #Palautetaan lista
     return values
 
-def goal_reached(game_id):
+def goal_reach_list(game_id):
 
-    # Kertoo pelaajan saavutetut tavoitteet.
+    # Kertoo pelaajan saavutetut tavoitteet listana.
 
     sql = f" SELECT kentat.name, kentat.country_fi FROM kentat RIGHT JOIN goal ON goal.ident = kentat.ident WHERE goal.game_id = '{game_id}' AND goal.reached = '1' "
     kursori.execute(sql)
@@ -478,7 +481,7 @@ kursori = yhteys.cursor()
 #Peli alkaa
 
 # Luodaan uusi peli tai ladataan vanha: tämä määrittää game_id:n
-game_type = input("Valitse 1 tai 2:\n1 Uusi peli\n2 Lataa peli")
+game_type = input("Valitse 1 tai 2:\n1 Uusi peli\n2 Lataa peli\n")
 if game_type == "2":
     game_id = load_game()
 
@@ -494,7 +497,7 @@ while goal_reached(game_id) != True:
     game_id, game_name, game_location, game_money, game_co2, game_money_gained, game_money_spent, game_distance, game_flights = game_values(game_id)
 
     # Pelaajan nimi
-    print(f"####################################################################################\nPelaaja: {game_name}")
+    print(f"\n####################################################################################\nPelaaja: {game_name}")
 
     # Näytetään tavoitteet
     show_goals(game_id)
@@ -532,7 +535,7 @@ while goal_reached(game_id) != True:
 
     #Saavutaan määränpäähän. Saadaan mahdollisesti rahaa.
     visit_destination(game_location, game_id)
-
+    input("Paina enter jatkaaksesi...")
 
 
 #Pelaaja voitta pelin!
