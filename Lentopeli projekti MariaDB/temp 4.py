@@ -34,22 +34,23 @@ def game_values(game_id):
 
 ###########################################
 
-game_id = 35
+game_id = 43
 game_id, game_name, game_location, game_money, game_co2, game_money_gained, game_money_spent, game_distance, game_flights = game_values(game_id)
 
-game_id = 41
+game_id = 43
 
 
-sql =  f" INSERT INTO visited (game_id, ident) VALUES ('{game_id}', '{game_location}') "
-print(sql)
-
-kursori.execute(sql)
-
+sql3 = f"SELECT money_gained FROM game WHERE game.id = '{game_id}' "
+kursori.execute(sql3)
+sql_gained = kursori.fetchall()
+gained = sql_gained[0][0]
+money_gained = int(gained +gdp_bonus)
+print(gained)
 
 
 #sql_read = kursori.fetchall()
 #print(sql_read)
 
 
-yhteys.commit()
+#yhteys.commit()
 
