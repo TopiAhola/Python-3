@@ -1,0 +1,143 @@
+
+
+body {
+    background: linear-gradient(rgba(0, 255, 0, 1), rgba(255, 255, 0, 0));
+    margin-left: 5rem;
+    margin-right: 5rem;
+
+}
+
+.ylamarginaali {
+    height: 5rem;
+}
+
+.navbar {
+    padding: 0;
+    margin: 0;
+    place-self: center;
+    background: red;
+
+
+}
+
+.button {
+    display: inline-flex;
+    background-color: red;
+    border: none;
+    /*border-color: red ; */
+    color: white;
+    padding: 3rem 6rem;
+    text-align: center;
+    font-size: 2rem;
+    margin: 0 0;
+    opacity: 1;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.button:hover {
+    background-color: black;
+    opacity: 0.5;
+    transition: 0.3s;
+}
+
+
+#testi1 {
+    color: green;
+    background: linear-gradient(rgba(255, 0, 0, 1), rgba(255, 0, 0, 0));
+
+}
+
+#testi2 {
+    color: darkred;
+    font-size: 1.5rem;
+    font-family: Arial, sans-serif;
+
+}
+
+
+.pupuruudut{
+    width: 100%;
+    background: yellow;
+
+}
+
+.pupuruutu {
+    display: inline-flex;
+    box-shadow: 2rem 2rem 1rem rgba(0,0,0,50%);
+    transition: width 2s;
+    height: 30rem;
+    width: 20rem;
+    margin: 2rem;
+    background-color: aqua;
+    padding: 1rem;
+    place-self: auto;
+}
+
+/*.pupuruutu:hover {
+    height: 33rem;
+    width: 22rem;
+}  */
+
+
+.kuva_alue1 {
+    /*background-color: red; */
+    /*background-size: auto; */
+    place-self: auto;
+
+    padding: 1rem;
+
+
+}
+
+
+
+.pupukuva {
+    height: 10rem;
+    width: 12rem;
+
+    padding: 2rem;
+
+
+}
+
+.kuvaotsikko1 {
+    text-align: center;
+    font-size: 2rem;
+    font-family: arial, sans-serif, bold;
+    padding: 2rem;
+
+}
+
+.kuvateksti1 {
+    text-align: center;
+    margin: 2rem;
+    padding: 2rem;
+
+
+}
+
+
+
+div.gallery {
+  margin: 5px;
+  border: 1px solid #ccc;
+  float: left;
+  width: 180px;
+}
+
+div.gallery:hover {
+  border: 1px solid #777;
+}
+
+div.gallery img {
+  width: 100%;
+  height: auto;
+}
+
+div.desc {
+  padding: 15px;
+  text-align: center;
+}
+
+

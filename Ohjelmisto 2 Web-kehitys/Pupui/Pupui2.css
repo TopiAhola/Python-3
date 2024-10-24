@@ -1,0 +1,245 @@
+
+
+body {
+    background: linear-gradient(rgba(0, 0, 255, 1), rgba(0, 255, 0, 1));
+    margin-left: 5rem;
+    margin-right: 5rem;
+    margin-top: 5rem;
+    margin-bottom: 5rem ;
+}
+
+
+.navbar {
+    padding: 0;
+    margin: 0;
+    place-self: center;
+    background: green; }
+
+
+.button {
+    display: inline-flex;
+
+    background-color: red;
+    border: none;
+    /*border-color: red ; */
+    color: white;
+    padding: 3rem 6rem;
+    text-align: center;
+    font-size: 2rem;
+    margin: 0 0;
+    opacity: 1;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.button:hover {
+    background-color: black;
+    opacity: 0.5;
+    transition: 0.3s;
+}
+
+
+.otsikkoalue {
+    WIDTH: 100%;
+    BACKGROUND-COLOR: white;
+}
+
+.otsikko1 {
+    text-align: center;
+    font-size: 6rem;
+    font-family: arial, bold, serif;
+
+}
+
+.otsikko2 {
+    text-align: center;
+    font-size: 3rem;
+}
+
+
+
+.etusivukuvaalue {
+    width: 100%;
+    place-content: center;
+    place-items: center;
+    background-color: white;
+
+}
+
+
+.etusivukuva {
+    height: 50%;
+    width: 50%;
+    display: block;
+    /*box-shadow: 0rem 0rem 10000rem red ; */
+
+}
+
+
+
+.pupuruudut {
+    background-color: yellow;
+    background-size: cover;
+    place-content: center;
+    place-self: center;
+
+
+}
+
+.pupuruutu {
+
+    float: left;
+    height: 30rem;
+    width: 20rem;
+    margin: 4rem;
+    background-color: aqua;
+    padding: 1rem;
+    place-self: center;
+    box-shadow: 2rem 2rem 1rem rgba(0,0,0,50%);
+    cursor: pointer;
+    transition: width 2s, margin 2s, height 2s;
+    border-radius: 2rem;
+    overflow: hidden;
+}
+
+.pupuruutu:hover {
+    background-color: white;
+    margin: 2rem;
+    height: 36rem;
+    width: 24rem;
+    /* Koon muuttuminen hyvä vai ei? */
+}
+
+
+.kuva_alue1 {
+    /*background-color: red; */
+    /*background-size: auto; */
+    /*place-self: auto; */
+    position: static;
+    padding: 0rem;
+    /* display: inherit; */
+    overflow: hidden;
+    margin: 0;
+}
+
+
+.pupukuva {
+    height: 15rem;
+    width: 18rem;
+    padding: 1rem;
+    position: static;
+    /* display: inherit; */
+    place-self: center;
+}
+
+
+.kuvaotsikko1 {
+    text-align: center;
+    font-size: 2rem;
+    font-family: arial, sans-serif, bold;
+    padding: 1rem;
+    /* position: static; */
+    /* display: inherit; */
+    overflow: hidden;
+    margin: 0;
+    place-self: center;
+    display: block;
+
+}
+
+.kuvaotsikko2 {
+    text-align: center;
+    font-size: 1rem;
+    font-family: arial, sans-serif, bold;
+    margin: 0;
+    display: block;
+}
+
+
+
+.kuvateksti1 {
+     /* text-align: center; */
+    margin: 0rem;
+    padding: 1rem;
+    position: static;
+    /* display: inherit; */
+    overflow: hidden;
+
+}
+
+
+
+section3 {
+    margin-top: 10rem;
+    display: block;
+}
+
+.columnx2 {
+    width: 90%;
+    background-color: yellow;
+    place-self: center;
+    padding-left: 10rem;
+    margin: 2rem;
+}
+
+
+.column21 {
+    float: left;
+    width: 30%;
+    /*background-color: red; */
+}
+
+.yhteystiedot {
+    font-size: 3rem;
+    background-color: yellow;
+}
+
+
+
+.column22 {
+    float: left;
+    width: 70%;
+    /*background-color: red; */
+}
+ .kartta {
+     height: 60%;
+     width: 60%;
+     padding: 0rem;
+     box-shadow: 2rem 2rem 1rem rgba(0,0,0,50%);
+ }
+
+
+
+
+
+#testi1 {
+    color: green;
+    background: linear-gradient(rgba(255, 0, 0, 1), rgba(255, 0, 0, 0));
+
+}
+
+#testi2 {
+    color: darkred;
+    font-size: 1.5rem;
+    font-family: Arial, sans-serif;
+}
+
+#testikappale1 {
+    height: 200px;
+    background: red;
+    backbround-size: cover;
+    animation: animaatio1 10s infinite;}
+
+    #testikappaletyyli2 {
+    background: red;
+    backbround-size: cover;
+    animation: animaatio1 10s infinite;}
+
+    @keyframes animaatio1 {
+    from {background-color: red;}
+    to {background-color: blue;}
+     }
+
+
+
+
