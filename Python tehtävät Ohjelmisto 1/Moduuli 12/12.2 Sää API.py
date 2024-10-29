@@ -20,7 +20,7 @@ Selvitä myös, miten saat Kelvin-asteet muunnettua Celsius-asteiksi.
 import requests
 
 #Muuttujat pyyntöihin:
-API_key = "8ac3dcf7485e3aaf3732373c935ff093"
+API_key = input("Anna Openweather API key: ")
 
 #Palautettavien säätietojen raja. Kokeillan 1.
 limit = 1
