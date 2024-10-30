@@ -38,8 +38,8 @@ def sql_request(icao):
     yhteys = mysql.connector.connect(**parametrit)
     cursor = yhteys.cursor()
 
-    sql = f"SELECT name, municipality from airport where ident = '{icao}'  "
-    #sql = f"SELECT name, municipality from kentat where ident = '{icao}' "
+    #sql = f"SELECT name, municipality from airport where ident = '{icao}'  "
+    sql = f"SELECT name, municipality from kentat where ident = '{icao}' "
     cursor.execute(sql)
     tulos = cursor.fetchall()
 
