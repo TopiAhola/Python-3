@@ -16,12 +16,13 @@ import mysql.connector
 app = Flask(__name__)
 @app.route('/kentta/<icao>')
 
-def kentta_nimi(icao):
+def kentta(icao):
+    icao = icao.upper()
     nimi, kaupunki = sql_request(icao)
 
-    vastaus = { "icao" : icao,
-                "name": nimi,
-               "municipality": kaupunki
+    vastaus = {"ICAO" : icao,
+               "Name" : nimi,
+               "Municipality" : kaupunki
                }
 
     return vastaus
@@ -37,13 +38,13 @@ def sql_request(icao):
     yhteys = mysql.connector.connect(**parametrit)
     cursor = yhteys.cursor()
 
-    #sql = f"SELECT name, municipality from airport where ident = '{icao}'  "
-    sql = f"SELECT name, municipality from kentat where ident = '{icao}' "
+    sql = f"SELECT name, municipality from airport where ident = '{icao}'  "
+    #sql = f"SELECT name, municipality from kentat where ident = '{icao}' "
     cursor.execute(sql)
     tulos = cursor.fetchall()
 
-    nimi = "a"
-    kaupunki= "b"
+    nimi = tulos[0][0]
+    kaupunki= tulos[0][1]
 
     return nimi, kaupunki
 

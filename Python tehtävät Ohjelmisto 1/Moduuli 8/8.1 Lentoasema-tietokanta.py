@@ -19,6 +19,7 @@ sql = f"SELECT name, municipality from airport where ident = '{icao}'  "
 print(sql)
 cursor.execute(sql)
 tulos = cursor.fetchall()
+#print(tulos)
 
 for rivi in tulos:
     print(f"Lentokenttä: {rivi[0]}")
