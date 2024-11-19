@@ -7,6 +7,7 @@ pääohjelmassa sen jälkeen luodun auton kaikki ominaisuudet.'''
 
 class Auto:
 
+    #Luokkamuuttuja "määrä".
     määrä = 0
 
     def __init__(self, rekisteritunnus, huippunopeus, nopeus = 0, matka = 0):
@@ -15,6 +16,7 @@ class Auto:
         self.nopeus = nopeus
         self.matka = matka
 
+        #Luokkamuuttuja kasvaa yhdellä.
         Auto.määrä += 1
 
     def tiedot(self):
@@ -29,7 +31,7 @@ class Auto:
 
 
 auto1 = Auto("ABC-123", 142)
-
+auto2 = Auto("BBB-333" , 150)
 
 
 # testejä
@@ -40,4 +42,5 @@ auto1 = Auto("ABC-123", 142)
 
 tieto_lista = auto1.tiedot()
 print(f"Rekisteritunnus: {tieto_lista[0]} \nHuippunopeus: {tieto_lista[1]}km/h \nNopeus: {tieto_lista[2]}km/h \nKuljettu matka: {tieto_lista[3]}km \n")
-
+aaa = auto2.tiedot()
+print()

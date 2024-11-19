@@ -85,4 +85,4 @@ auto2.kulje(3)
 
 print(f"Auto {auto1.rekisteritunnus} on kulkenut {auto1.matka} km.")
 print(f"Auto {auto2.rekisteritunnus} on kulkenut {auto2.matka} km.")
-
+print(Auto.määrä)

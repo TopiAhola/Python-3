@@ -17,3 +17,4 @@ vastaus = requests.get(pyynto).json()
 #Tulostetaan vitsin teksti "value"
 tuloste = vastaus["value"]
 print(f"\n{tuloste}\n ")
+

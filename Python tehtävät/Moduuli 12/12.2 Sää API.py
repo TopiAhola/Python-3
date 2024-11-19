@@ -30,7 +30,6 @@ city_name = input("Anna kunnan nimi: ")
 country_code = ""
 state_code = ""
 
-
 kunta_pyynto = f"http://api.openweathermap.org/geo/1.0/direct?q={city_name},{state_code},{country_code}&limit={limit}&appid={API_key}"
 kunta_vastaus = requests.get(kunta_pyynto).json()
 #print(kunta_vastaus)
