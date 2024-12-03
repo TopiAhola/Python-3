@@ -1,0 +1,11 @@
+Frontend
+html
+javascript
+
+
+## Backend ##
+# python
+-testiserveri pitää palauttaa oikea tietorakenne
+
+#mariaDB
+-Pitää lisätä difficulty ja start_money sarakkeet game tauluun

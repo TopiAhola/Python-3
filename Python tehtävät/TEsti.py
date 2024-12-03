@@ -33,3 +33,9 @@ joku = Julkaisu("Julkkis")
 
 print(Julkaisu, kirja_1, lehti1.nimi)
 
+lista = [1,2,3,4,]
+lista.append(1)
+lista[4] = 55
+print(lista)
+print(len(lista))
+
