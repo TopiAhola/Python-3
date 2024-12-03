@@ -18,11 +18,11 @@ class Game:
 
     #get_data palauttaa pelaajan tiedot dictionarynä
     def get_data (self):
-        player_game_data = self.__dict__ #palauttaa pelaajan tiedot
-
+        player_game_data = self.__dict__ #palauttaa pelaajan tiedot dic
         return player_game_data
 
     def get_flights(self):
+        #
         pass
 
     def fly_testi(self, flight_type, destination):
@@ -33,8 +33,11 @@ class Game:
 class Airports:
     airports = {}
 
-    def __init__(self, **kwargs):
+    def __init__(self, icao, flights):
+        self.icao = icao
         Airports.airports[self.icao] = self #Lisätään luokkalistaan
+        self.flights = flights
+
 
 
 ######################################
@@ -44,40 +47,39 @@ def get_airports():
     #Hakee kentät tietokannasta dictionaryyn.
     pass
 
-
+#Toimii :)
+testilista = [ {"name": "testinimi", "country": "testi1", "icao": "efhk", "cost": "x", "distance": "100", "co2": "50"}]
+testikentta = Airports("efhk",testilista )
 
 #######################################################
 ## Tietorakenne ##
 #Pelaajan aloitusarvot ilman satunnaistamista:
 game_data_default = {
-        "game_status": "gameinprogress/gameover/gamewon",
+        "game_status": "gameinprogress",
         "message": "default",
+        "debugmessage": "default, ",
         "name": "default",
         "flight_type": "default",
         "destination": "default",
-        "difficulty": "hard?",
+        "difficulty": "default",
         "start_money": 1500,
         "money": 1500,
         "money_gained": 12,
-        "co2": 50,
-        "money_gained_total": 200,
-        "money_spent_total": 100,
-        "distance": "1000",
+        "co2": 0,
+        "money_gained_total": 0,
+        "money_spent_total": 0,
+        "distance": 0,
         "location": {"goal": True, "visited": True, "icao": "efhk", "name": "helsinki", "country": "suomi", "lat": "50.22", "lon": "20.22", "gdp": "0"},
         "flights": [{"name": "a", "country": "suomi", "icao": "efhk", "cost": "x", "distance": "100", "co2": "50", "lat": "50.22", "lon": "20.22"},
                     {"name": "a", "country": "suomi", "icao": "efhk", "cost": "x", "distance": "100", "co2": "50","lat": "50.22", "lon": "20.22"},
                     {"name": "a", "country": "suomi", "icao": "efhk", "cost": "x", "distance": "100", "co2": "50","lat": "50.22", "lon": "20.22"},
                     {"name": "a", "country": "suomi", "icao": "efhk", "cost": "x", "distance": "100", "co2": "50","lat": "50.22", "lon": "20.22"}
                     ],
-        "airports": [
-            {"goal": True, "visited": True, "icao": "efhk", "name": "helsinki", "country": "suomi", "lat": "50.22","lon": "20.22", "gdp": "0"},
-            {"goal": False, "visited": False, "icao": "efhk", "name": "espoo", "country": "suomi", "lat": "50.22","lon": "20.22", "gdp": "0"},
-            {"goal": True, "visited": False, "icao": "efhk", "name": "vantaa", "country": "suomi", "lat": "50.22","lon": "20.22", "gdp": "0"}
-            ]}
+        "airports": [   ]}
 
-#Lentokentän
+#Lentokentän ja lennon tietorakenne:
 airport_default = {"goal": False, "visited": False, "icao": "efhk", "name": "vantaa", "country": "suomi", "lat": "50.22","lon": "20.22", "gdp": "10"}
-
+flight_default = {"name": "a", "country": "suomi", "icao": "efhk", "cost": "x", "distance": "100", "co2": "50","lat": "50.22", "lon": "20.22"}
 ######################################
 ## Flask ##
 # Flask serveri pitää olla viimeisenä koodissa jotta muuttujat ja funktiot on määritelty.
@@ -87,11 +89,11 @@ CORS(app)
 @app.route('/newgame/<name>/<difficulty>')
 def server_newgame(name, difficulty):
     #Alustaa uuden pelin. game_data muuttujat laitetaan oletusarvoihin ja lisätään pelaajan nimi:
-    game = Game(**game_data_default) #Määritellään pelaaja Game luokkaan oletus argumenteilla
-    game.name = name    #Asetetaan oikea nimi ja vaikeusaste
+    game = Game(**game_data_default) #Määritellään pelaaja Game luokkaan oletus attribuuteilla
+    game.name = name                #Asetetaan oikea nimi ja vaikeusaste
     game.difficulty = difficulty
-    game.money = 2000 # Tämän pitää olla vaikeusasteen funktio
-    Game.activeGame = game  #Pelaajaoliota kutsutaan: Game.activeGame
+    game.money = 2000               # Tämän pitää olla vaikeusasteen funktio
+    Game.activeGame = game          #Pelaajaoliota kutsutaan: Game.activeGame
 
     ## Kesken ##
     # 1. Haetaan lentokentät 2. määritetään tavoitteet 3. määritetään aloituskenttä
@@ -104,10 +106,11 @@ def server_newgame(name, difficulty):
 
 @app.route('/<flight_type>/<destination>')
 def server_input(flight_type, destination):
-    Game.activeGame.fly_testi(flight_type, destination)
-    #1. tekee lennon muutokset (lisää päästöjä, vähemmän rahaa, saapumispalkkio, )
+    Game.activeGame.fly_testi(flight_type, destination)#1.tekee lennon muutokset (lisää päästöjä, vähemmän rahaa, saapumispalkkio, )
+
     # 2. haetaan uudet lennot airports luokasta ja tallenetaan Game.activeGame.flights attribuuttiin
-    # 3.
+    # Tämä olisi helpompi jos game.location olisi airport olio...
+    Game.activeGame.flights = Airports.airports[Game.activeGame.location["icao"]].flights
     vastaus = Game.activeGame.get_data() #hakee tiedot
     vastaus_json = json.dumps(vastaus)
     return vastaus_json
