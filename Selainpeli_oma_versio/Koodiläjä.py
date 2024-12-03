@@ -42,3 +42,10 @@ game_data = {
              "lon": "20.22", "gdp": "0"}
             ]
     }
+
+## Airports lista rakenne:
+"airports": [
+            {"goal": True, "visited": True, "icao": "efhk", "name": "helsinki", "country": "suomi", "lat": "50.22","lon": "20.22", "gdp": "0"},
+            {"goal": False, "visited": False, "icao": "efhk", "name": "espoo", "country": "suomi", "lat": "50.22","lon": "20.22", "gdp": "0"},
+            {"goal": True, "visited": False, "icao": "efhk", "name": "vantaa", "country": "suomi", "lat": "50.22","lon": "20.22", "gdp": "0"}
+            ]}

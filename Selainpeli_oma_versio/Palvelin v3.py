@@ -10,14 +10,11 @@ import json
 ## Luokat ##
 
 class Game:
-    activeGame = []
+    activeGame = object
     #Game sisältää kaikki pelaajan tiedot
-    def __init__(self, name, difficulty):
-        self.name = name
-        self.difficulty = difficulty
-        self.debugmessage = "default"
-        self.location = {"goal": False, "visited": True, "icao": "efhk", "name": "Helsinki", "country": "Suomi", "lat": "50.22","lon": "20.22", "gdp": "50"}
-        self.message = "defaultviesti"
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
 
     #get_data palauttaa pelaajan tiedot dictionarynä
     def get_data (self):
@@ -30,96 +27,92 @@ class Game:
 
     def fly_testi(self, flight_type, destination):
         self.location = {"goal": False, "visited": False, "icao": "efhk", "name": "espoo", "country": "suomi", "lat": "50.22","lon": "20.22", "gdp": "0"}
-        self.debugmessage = self.debugmessage +"fly_testi funktio" #Lisää stringin debug kentään kun funktio toimii
-
-
-
-
+        self.debugmessage = self.debugmessage +"fly_testi_funktio," #Lisää stringin debug kentään kun funktio toimii
 
 
 class Airports:
-    #Kaikki lentokentät
-    def __init__(self, ):
-        pass
+    airports = {}
+
+    def __init__(self, **kwargs):
+        Airports.airports[self.icao] = self #Lisätään luokkalistaan
 
 
 ######################################
 ## Pääohjelma ##
 
+def get_airports():
+    #Hakee kentät tietokannasta dictionaryyn.
+    pass
+
+
+
+#######################################################
+## Tietorakenne ##
+#Pelaajan aloitusarvot ilman satunnaistamista:
+game_data_default = {
+        "game_status": "gameinprogress/gameover/gamewon",
+        "message": "default",
+        "name": "default",
+        "flight_type": "default",
+        "destination": "default",
+        "difficulty": "hard?",
+        "start_money": 1500,
+        "money": 1500,
+        "money_gained": 12,
+        "co2": 50,
+        "money_gained_total": 200,
+        "money_spent_total": 100,
+        "distance": "1000",
+        "location": {"goal": True, "visited": True, "icao": "efhk", "name": "helsinki", "country": "suomi", "lat": "50.22", "lon": "20.22", "gdp": "0"},
+        "flights": [{"name": "a", "country": "suomi", "icao": "efhk", "cost": "x", "distance": "100", "co2": "50", "lat": "50.22", "lon": "20.22"},
+                    {"name": "a", "country": "suomi", "icao": "efhk", "cost": "x", "distance": "100", "co2": "50","lat": "50.22", "lon": "20.22"},
+                    {"name": "a", "country": "suomi", "icao": "efhk", "cost": "x", "distance": "100", "co2": "50","lat": "50.22", "lon": "20.22"},
+                    {"name": "a", "country": "suomi", "icao": "efhk", "cost": "x", "distance": "100", "co2": "50","lat": "50.22", "lon": "20.22"}
+                    ],
+        "airports": [
+            {"goal": True, "visited": True, "icao": "efhk", "name": "helsinki", "country": "suomi", "lat": "50.22","lon": "20.22", "gdp": "0"},
+            {"goal": False, "visited": False, "icao": "efhk", "name": "espoo", "country": "suomi", "lat": "50.22","lon": "20.22", "gdp": "0"},
+            {"goal": True, "visited": False, "icao": "efhk", "name": "vantaa", "country": "suomi", "lat": "50.22","lon": "20.22", "gdp": "0"}
+            ]}
+
+#Lentokentän
+airport_default = {"goal": False, "visited": False, "icao": "efhk", "name": "vantaa", "country": "suomi", "lat": "50.22","lon": "20.22", "gdp": "10"}
 
 ######################################
 ## Flask ##
+# Flask serveri pitää olla viimeisenä koodissa jotta muuttujat ja funktiot on määritelty.
 app = Flask(__name__)
 CORS(app)
 
 @app.route('/newgame/<name>/<difficulty>')
 def server_newgame(name, difficulty):
     #Alustaa uuden pelin. game_data muuttujat laitetaan oletusarvoihin ja lisätään pelaajan nimi:
+    game = Game(**game_data_default) #Määritellään pelaaja Game luokkaan oletus argumenteilla
+    game.name = name    #Asetetaan oikea nimi ja vaikeusaste
+    game.difficulty = difficulty
+    game.money = 2000 # Tämän pitää olla vaikeusasteen funktio
+    Game.activeGame = game  #Pelaajaoliota kutsutaan: Game.activeGame
 
-    game = Game(name, difficulty) #Määritellään pelaaja Game luokkaan
-    Game.activeGame.append(game)  #Laitetaan pelaaja luokkamuuttujaan. pelaaja-objektia kutsutaan: Game.activeGame[0]
-    server_return_data = game.get_data()
+    ## Kesken ##
+    # 1. Haetaan lentokentät 2. määritetään tavoitteet 3. määritetään aloituskenttä
+    # 4. syötetään "airports" dic game.airports attribuuttiin ja aloitus game.location
+    # 5. luodaan lennon pelaajan sijainnin perusteella 6. syötetään lennot game.flights attribuuttiin.
 
+    server_return_data = game.get_data() #haetaan pelin tilanne game.get_data()
     return server_return_data
 
 
 @app.route('/<flight_type>/<destination>')
 def server_input(flight_type, destination):
-
-
-    Game.activeGame[0].fly_testi(flight_type, destination) #tekee lennon muutokset
-    vastaus = Game.activeGame[0].get_data() #hakee tiedot
+    Game.activeGame.fly_testi(flight_type, destination)
+    #1. tekee lennon muutokset (lisää päästöjä, vähemmän rahaa, saapumispalkkio, )
+    # 2. haetaan uudet lennot airports luokasta ja tallenetaan Game.activeGame.flights attribuuttiin
+    # 3.
+    vastaus = Game.activeGame.get_data() #hakee tiedot
     vastaus_json = json.dumps(vastaus)
     return vastaus_json
-
 
 if True:
     app.run(use_reloader=True, host='127.0.0.1', port=3000)
 
 
-#######################################################
-## Tietorakenne ##
-'''
-game_data = {
-        "game_status": "gameinprogress/gameover/gamewon",
-        "message": "default",
-        "name": "default",
-        "flight_type": "default",
-        "destination": "default",
-        # "total"-arvot on kertymä koko pelin ajalta. money_gained on viimeisimmän saapumisen lisäämä rahamäärä
-        "difficulty": "hard?",
-        "start_money": "1500",
-        "money": "1500",
-        "money_gained": "123",
-        "co2": "50",
-        "money_gained_total": "200",
-        "money_spent_total": "100",
-        "distance": "1000",
-        # time, temperature, weather on reaaliaikaisia muuttujia joita ei tallenneta tietokantaan.
-        "time": "12.00",
-        "temperature": "20",
-        "weather": "cloudy?",
-        # Pelaajan sijainti, lentokentän tiedot:
-        "location": {"goal": True, "visited": True, "icao": "efhk", "name": "helsinki", "country": "suomi",
-                     "lat": "50.22", "lon": "20.22", "gdp": "0"},
-        # lista tarjolla olevista lennoista:
-        "flights": [{"name": "a", "country": "suomi", "icao": "efhk", "cost": "x", "distance": "100", "co2": "50",
-                     "lat": "50.22", "lon": "20.22"},
-                    {"name": "a", "country": "suomi", "icao": "efhk", "cost": "x", "distance": "100", "co2": "50",
-                     "lat": "50.22", "lon": "20.22"},
-                    {"name": "a", "country": "suomi", "icao": "efhk", "cost": "x", "distance": "100", "co2": "50",
-                     "lat": "50.22", "lon": "20.22"},
-                    {"name": "a", "country": "suomi", "icao": "efhk", "cost": "x", "distance": "100", "co2": "50",
-                     "lat": "50.22", "lon": "20.22"}
-                    ],
-        # lista KAIKISTA lentokentistä. Vieraillut ja tavoite kentät on osoitettu booleilla: goal ja visited True/False
-        "airports": [
-            {"goal": True, "visited": True, "icao": "efhk", "name": "helsinki", "country": "suomi", "lat": "50.22",
-             "lon": "20.22", "gdp": "0"},
-            {"goal": False, "visited": False, "icao": "efhk", "name": "espoo", "country": "suomi", "lat": "50.22",
-             "lon": "20.22", "gdp": "0"},
-            {"goal": True, "visited": False, "icao": "efhk", "name": "vantaa", "country": "suomi", "lat": "50.22",
-             "lon": "20.22", "gdp": "0"}
-            ]
-    }
-'''
